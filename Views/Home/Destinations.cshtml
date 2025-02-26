@@ -20,7 +20,6 @@
             <table class="table table-bordered mt-3">
                 <thead class="table-dark">
                     <tr>
-                        <th>Destination ID</th>
                         <th>State/Province</th>
                         <th>City</th>
                         <th>Arrival</th>
@@ -32,7 +31,6 @@
                     @foreach (var destination in Model)
                 {
                     <tr>
-                        <td>@destination.destination_id</td>
                         <td>@destination.dest_state</td>
                         <td>@destination.dest_city</td>
                         <td>@destination.dest_arr.ToString("yyyy-MM-dd")</td>
@@ -43,9 +41,9 @@
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
+                                        <th>Day</th>
                                         <th>Title</th>
                                         <th>Description</th>
-                                        <th>Day</th>
                                         <th>Place</th>
                                         <th>Start</th>
                                         <th>End</th>
@@ -55,9 +53,9 @@
                                     @foreach (var activity in destination.Activities)
                                         {
                                     <tr>
+                                        <td>@activity.activity_day</td>
                                         <td>@activity.activity_title</td>
                                         <td>@activity.activity_description</td>
-                                        <td>Day @activity.activity_day</td>
                                         <td>@activity.activity_place</td>
                                         <td>@activity.activity_start.ToString("HH:mm")</td>
                                         <td>@activity.activity_end.ToString("HH:mm")</td>

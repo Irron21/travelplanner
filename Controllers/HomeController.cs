@@ -295,7 +295,7 @@ namespace LoginSystem.Controllers
 
                     foreach (var destination in destinations)
                     {
-                        string destinationQuery = "INSERT INTO destinations (destination_id, trip_id, state_province, city, arrival_date, departure_date) VALUES (@DestinationID, @TripID, @StateProvince, @City, @ArrivalDate, @DepartureDate)";
+                        string destinationQuery = "INSERT INTO destinations (destination_id, trip_id, state_province, city, arrival_date, departure_date, created_at) VALUES (@DestinationID, @TripID, @StateProvince, @City, @ArrivalDate, @DepartureDate, NOW())";
                         using (MySqlCommand cmd = new MySqlCommand(destinationQuery, con))
                         {
                             cmd.Parameters.AddWithValue("@DestinationID", destination.destinationId);
@@ -310,7 +310,7 @@ namespace LoginSystem.Controllers
 
                     foreach (var activity in activities)
                     {
-                        string activityQuery = "INSERT INTO activities (activity_id, trip_id, destination_id, title, description, day, place, start_time, end_time) VALUES (@ActivityID, @TripID, @DestinationID, @Title, @Description, @Day, @Place, @StartTime, @EndTime)";
+                        string activityQuery = "INSERT INTO activities (activity_id, trip_id, destination_id, title, description, day, place, start_time, end_time, created_at) VALUES (@ActivityID, @TripID, @DestinationID, @Title, @Description, @Day, @Place, @StartTime, @EndTime, NOW())";
                         using (MySqlCommand cmd = new MySqlCommand(activityQuery, con))
                         {
                             cmd.Parameters.AddWithValue("@ActivityID", activity.activityId);
