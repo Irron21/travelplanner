@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Itinerary Planner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Plan Your Trip</h2>
+
+        <form id="tripForm" asp-controller="Home" asp-action="StoreTripInfoToDatabase" method="post">
+            <div class="mb-3">
+                <label for="trip_name" class="form-label">Trip Name</label>
+                <input type="text" class="form-control" id="trip_name" name="trip_name" required>
+            </div>
+            <div class="mb-3">
+                <label for="trip_country" class="form-label">Country</label>
+                <select class="form-control" id="trip_country" name="trip_country" required>
+                    <option value="" selected disabled>Select a country</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="trip_start" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="trip_start" name="trip_start" required>
+            </div>
+            <div class="mb-3">
+                <label for="trip_end" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="trip_end" name="trip_end" required>
+            </div>
+
+            <h4>Destinations</h4>
+            <div id="destinations">
+                <!--Destinations here-->
+            </div>
+            <button type="button" id="addDestinationBtn" class="btn btn-primary my-3" onclick="addDestination()">
+                Add Destination
+            </button>
+            <button type="submit" class="btn btn-success">Save Trip</button>
+        </form>
+    </div>
+    <script type="module">
+let destinationCount = 0; // Ensure it is declared globally
+
+function addDestination() {
+    destinationCount++;
+    const destinationsDiv = document.getElementById('destinations');
+
+    let destinationHTML = `
+        <div class="border p-3 mb-3 bg-white shadow-sm" id="destination_${destinationCount}">
+            <h5>Destination ${destinationCount}</h5>
+            <div class="mb-2 d-flex gap-2">        
+                <label class="form-label">City</label>
+                <input type="text" class="form-control" name="destination_city_${destinationCount}" required> 
+                <label class="form-label">State/Province</label>
+                <input type="text" class="form-control" name="destination_stateprovince_${destinationCount}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Arrival Date</label>
+                <input type="date" class="form-control" id="destination_arrival_date_${destinationCount}" name="destination_arrival_date_${destinationCount}"required>
+            </div> 
+            <div class="mb-3">
+                <label class="form-label">Departure Date</label>
+                <input type="date" class="form-control" id="destination_departure_date_${destinationCount}" name="destination_departure_date_${destinationCount}" required>
+            </div>           
+            <hr>
+            <div class="mb-3">
+                <label class="form-label">Activities</label>
+                <div id="activities_${destinationCount}">
+                    <!-- Activities will be added here dynamically -->
+                </div>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="addActivity(${destinationCount})">Add Activity</button>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeElement('destination_${destinationCount}')">Remove Destination</button>
+        </div>
+    `;
+
+    destinationsDiv.insertAdjacentHTML('beforeend', destinationHTML);
+}
+
+function addActivity(destinationId) {
+    let activitiesDiv = document.getElementById(`activities_${destinationId}`);
+    let activityCount = document.querySelectorAll(`#activities_${destinationId} div`).length + 1;
+    let activityHTML = `
+        <div class="mb-4 d-flex gap-4">
+            <select id="activity_${destinationId}_${activityCount}_day" name="activity_${destinationId}_${activityCount}_day"></select>
+            <input type="text" class="form-control" name="activity_title_${destinationId}_${activityCount}" placeholder="Activity Title" required>
+            <input type="text" class="form-control" name="activity_description_${destinationId}_${activityCount}" placeholder="Activity Description" required>
+            <input type="text" class="form-control" name="activity_place_${destinationId}_${activityCount}" placeholder="Activity Place" required>
+            <input type="time" class="form-control" name="activity_start_time_${destinationId}_${activityCount}" required>
+            <input type="time" class="form-control" name="activity_end_time_${destinationId}_${activityCount}" required> 
+            <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Remove</button>
+        </div>
+    `;
+
+    activitiesDiv.insertAdjacentHTML('beforeend', activityHTML);
+
+    setTimeout(() => calculateDestinationDate(destinationId, activityCount), 0);
+}
+
+function calculateDestinationDate(destinationId, activityCount) {
+    let startDate = document.getElementById(`destination_arrival_date_${destinationId}`).value;
+    let endDate = document.getElementById(`destination_departure_date_${destinationId}`).value;
+
+    if (!startDate || !endDate) return; // Stop execution if dates are missing
+
+    let start = new Date(startDate);
+    let end = new Date(endDate);
+    let differenceInDays = (end - start) / (1000 * 3600 * 24);
+
+    populateDays(differenceInDays + 1, destinationId, activityCount);
+}
+
+function populateDays(totalDays, destinationId, activityCount) {
+    let daySelect = document.getElementById(`activity_${destinationId}_${activityCount}_day`);
+    if (!daySelect) return;
+
+    daySelect.innerHTML = '<option value="" disabled selected>Select a day</option>';
+    for (let i = 1; i <= totalDays; i++) {
+        let option = document.createElement("option");
+        option.value = `Day ${i}`;
+        option.textContent = i;
+        daySelect.appendChild(option);
+    }
+}
+
+function removeElement(id) {
+    document.getElementById(id).remove();
+}
+
+document.getElementById('tripForm').addEventListener('submit', function (event) {
+    console.log("HEY SUBMITTED");
+    alert('Form Submitted Successfully!');
+});
+
+document.addEventListener("change", function (event) {
+    if (event.target.matches("[id^=destination_arrival_date_]") || event.target.matches("[id^=destination_departure_date_]")) {
+        let id = event.target.id.split("_")[2]; // Extract destination ID
+        document.querySelectorAll(`#activities_${id} select`).forEach((select, index) => {
+            calculateDestinationDate(id, index + 1);
+        });
+    }
+});
+
+window.addDestination = addDestination;
+window.addActivity = addActivity;
+window.removeElement = removeElement;
+
+function checkTripFields() {
+    const tripName = document.getElementById("trip_name").value.trim();
+    const tripCountry = document.getElementById("trip_country").value;
+    const tripStart = document.getElementById("trip_start").value;
+    const tripEnd = document.getElementById("trip_end").value;
+
+    const isFilled = tripName !== "" && tripCountry !== "" && tripStart !== "" && tripEnd !== "";
+
+    document.getElementById("addDestinationBtn").disabled = !isFilled;
+}
+
+document.getElementById("trip_name").addEventListener("input", checkTripFields);
+document.getElementById("trip_country").addEventListener("change", checkTripFields);
+document.getElementById("trip_start").addEventListener("input", checkTripFields);
+document.getElementById("trip_end").addEventListener("input", checkTripFields);
+
+async function loadCountries() {
+    const response = await fetch("https://restcountries.com/v3.1/all");
+    const countries = await response.json();
+    const countrySelect = document.getElementById("trip_country");
+
+    countries.sort((a, b) => a.name.common.localeCompare(b.name.common)); // Sort alphabetically
+
+    countries.forEach(country => {
+        let option = document.createElement("option");
+        option.value = country.name.common;
+        option.textContent = country.name.common;
+        countrySelect.appendChild(option);
+    });
+}
+
+// Load countries when the page loads
+document.addEventListener("DOMContentLoaded", loadCountries);
+
+
+    </script>
+</body>
+</html>
